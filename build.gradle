@@ -1,0 +1,74 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+group = 'ru.plumbum'
+version = '0.3.0'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    withSourcesJar()
+    withJavadocJar()
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly 'org.springframework.boot:spring-boot-autoconfigure:3.4.5'
+    compileOnly 'org.springframework:spring-context:6.1.10'
+
+    compileOnly 'org.telegram:telegrambots-meta:6.9.7.1'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+publishing {
+    publications {
+        gpr(MavenPublication) {
+            from components.java
+            groupId = project.group
+            artifactId = 'tg-update-router-spring-boot-starter'
+            version = project.version
+
+            pom {
+                name = 'tg-update-router-spring-boot-starter'
+                description = 'Annotation-based router for Telegram Updates (text, media, callback, etc.)'
+                url = 'https://github.com/RamzanKSM/tg-update-router'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'plumbum'
+                        name = 'Plumbum'
+                    }
+                }
+                scm {
+                    url = 'https://github.com/RamzanKSM/tg-update-router'
+                    connection = 'scm:git:git://github.com/RamzanKSM/tg-update-router.git'
+                    developerConnection = 'scm:git:ssh://github.com/RamzanKSM/tg-update-router.git'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = 'GitHubPackages'
+            url = uri('https://maven.pkg.github.com/RamzanKSM/tg-update-router')
+            credentials {
+                username = System.getenv('GITHUB_ACTOR') ?: (findProperty('gpr.user') as String)
+                password = System.getenv('GITHUB_TOKEN') ?: (findProperty('gpr.key') as String)
+            }
+        }
+    }
+}
